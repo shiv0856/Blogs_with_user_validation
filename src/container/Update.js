@@ -6,30 +6,39 @@ import moment from 'moment';
 
 export default function Update() {
     const params = useParams();
-
     let navigate = useNavigate();
+    const user =JSON.parse(localStorage.getItem('user'))
 
     const [blog, setBlog] = useState({});
     useEffect(() => {
         if (params.id) {
             let temp = JSON.parse(localStorage.getItem("blogs"));
-            setBlog(temp.find((e) => { return e.id === params.id }))
+            let test =temp.find((e) => { return e.id === params.id });
+            if (test.userId !== user.id){
+                return navigate("/");
+            }
+            else {
+            setBlog(test)
+            }
         }
     }, [])
 
     const submit = (e) => {
         e.preventDefault();
+        const user =JSON.parse(localStorage.getItem('user'));
         let title = e.target.title.value;
-        let author = e.target.author.value;
+        //let author = e.target.author.value;
         let published = e.target.published.value;
         let description = e.target.description.value;
         let obj = {
             title,
-            author,
+            author : user.name,
             description,
             createdOn: blog.createdOn,
             published: (published === "Yes") ? moment().format('L') : "",
-            id: blog.id
+            id: blog.id,
+            userId : user.id
+
         }
         let data = JSON.parse(localStorage.getItem('blogs'));
         let temp = data.filter((e) => {
@@ -46,10 +55,6 @@ export default function Update() {
                     <Form.Group className="mb-3" controlId="formBasicTitle">
                         <Form.Label>Title</Form.Label>
                         <Form.Control type="text" name="title" defaultValue={blog.title} placeholder="Enter Title" required />
-                    </Form.Group>
-                    <Form.Group className="mb-3" controlId="formBasicAuthor">
-                        <Form.Label>Author</Form.Label>
-                        <Form.Control type="text" name="author" defaultValue={blog.author} placeholder="Enter Author" required />
                     </Form.Group>
                     <Form.Group className="mb-3" controlId="formBasicDescription">
                         <Form.Label>Description</Form.Label>
